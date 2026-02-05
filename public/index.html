@@ -7,6 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
+        // Debug: Log when script starts
+        console.log("Script starting...");
         tailwind.config = {
             darkMode: 'class',
             theme: {
@@ -94,7 +96,7 @@
             </div>
 
             <!-- Tags -->
-            <div class="flex flex-wrap items-center gap-2">
+            <div id="filterTagsContainer" class="flex flex-wrap items-center gap-2">
                 <button data-filter="all" class="filter-tag px-4 py-1.5 rounded-full bg-rose-600 dark:bg-rose-500 text-white text-sm font-medium shadow-sm hover:bg-rose-700 dark:hover:bg-rose-600 transition-colors">
                     All
                 </button>
@@ -326,14 +328,14 @@
                 countDisplay.textContent = `Showing 0 of ${totalCount} links`;
                 
                 // Hide filter tags when no cards
-                document.querySelector('.flex.flex-wrap.items-center.gap-2').style.display = 'none';
+                document.getElementById('filterTagsContainer').style.display = 'none';
                 return;
             } else {
                 cardsContainer.style.display = 'flex';
                 emptyState.classList.add('hidden');
                 
                 // Show filter tags when cards exist
-                document.querySelector('.flex.flex-wrap.items-center.gap-2').style.display = 'flex';
+                document.getElementById('filterTagsContainer').style.display = 'flex';
             }
 
             // Apply category filter and search
