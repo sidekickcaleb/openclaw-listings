@@ -256,10 +256,10 @@
                 darkModeIcon.setAttribute('data-lucide', 'monitor');
             } else if (darkModeState === 'dark') {
                 html.classList.add('dark');
-                darkModeIcon.setAttribute('data-lucide', 'sun');
+                darkModeIcon.setAttribute('data-lucide', 'moon');
             } else {
                 html.classList.remove('dark');
-                darkModeIcon.setAttribute('data-lucide', 'moon');
+                darkModeIcon.setAttribute('data-lucide', 'sun');
             }
             
             lucide.createIcons();
@@ -322,11 +322,17 @@
             if (navFilteredCards.length === 0) {
                 cardsContainer.style.display = 'none';
                 emptyState.classList.remove('hidden');
-                countDisplay.textContent = `Showing 0 of 0 links`;
+                countDisplay.textContent = `Showing 0 of ${totalCount} links`;
+                
+                // Hide filter tags when no cards
+                document.querySelector('.flex.flex-wrap.items-center.gap-2').style.display = 'none';
                 return;
             } else {
                 cardsContainer.style.display = 'flex';
                 emptyState.classList.add('hidden');
+                
+                // Show filter tags when cards exist
+                document.querySelector('.flex.flex-wrap.items-center.gap-2').style.display = 'flex';
             }
 
             // Apply category filter and search
@@ -355,8 +361,8 @@
                 }
             });
 
-            // Update count
-            countDisplay.textContent = `Showing ${visibleCount} of ${navFilteredCards.length} links`;
+            // Update count - show total cards count as denominator
+            countDisplay.textContent = `Showing ${visibleCount} of ${totalCount} links`;
 
             // Sort visible cards
             sortCards();
@@ -395,10 +401,12 @@
                 const tabName = tab.getAttribute('data-nav-tab');
                 currentNavTab = tabName;
                 
-                // Update active state
+                // Update active state - clear all tabs first
                 navTabs.forEach(t => {
+                    // Remove active styles
                     t.classList.remove('bg-white', 'dark:bg-neutral-900', 'shadow-sm', 'ring-1', 'ring-neutral-200', 'dark:ring-neutral-800', 'text-rose-600', 'dark:text-rose-400');
-                    t.classList.add('text-neutral-500', 'dark:text-neutral-400');
+                    // Add inactive styles
+                    t.classList.add('text-neutral-500', 'dark:text-neutral-400', 'hover:text-neutral-900', 'dark:hover:text-neutral-100', 'hover:bg-white', 'dark:hover:bg-neutral-900', 'hover:ring-1', 'hover:ring-neutral-200', 'dark:hover:ring-neutral-800');
                     
                     const icon = t.querySelector('i');
                     if (icon.classList.contains('fill-rose-600')) {
@@ -406,9 +414,11 @@
                     }
                 });
                 
-                tab.classList.remove('text-neutral-500', 'dark:text-neutral-400');
+                // Apply active styles to clicked tab
+                tab.classList.remove('text-neutral-500', 'dark:text-neutral-400', 'hover:text-neutral-900', 'dark:hover:text-neutral-100', 'hover:bg-white', 'dark:hover:bg-neutral-900', 'hover:ring-1', 'hover:ring-neutral-200', 'dark:hover:ring-neutral-800');
                 tab.classList.add('bg-white', 'dark:bg-neutral-900', 'shadow-sm', 'ring-1', 'ring-neutral-200', 'dark:ring-neutral-800', 'text-rose-600', 'dark:text-rose-400');
                 
+                // Add rose fill to icon for OpenClaw tab
                 const icon = tab.querySelector('i');
                 if (tabName === 'openclaw') {
                     icon.classList.add('fill-rose-600', 'dark:fill-rose-400');
@@ -442,11 +452,19 @@
         });
 
         // ========================================
-        // Search
+        // Search with Debouncing
         // ========================================
+        let searchDebounceTimer;
         searchInput.addEventListener('input', (e) => {
             currentSearchQuery = e.target.value;
-            filterAndDisplayCards();
+            
+            // Clear previous timer
+            clearTimeout(searchDebounceTimer);
+            
+            // Set new timer for 150ms debounce
+            searchDebounceTimer = setTimeout(() => {
+                filterAndDisplayCards();
+            }, 150);
         });
 
         // ========================================
@@ -467,16 +485,17 @@
         });
 
         // ========================================
-        // Card Click Handler
+        // Card Click Handler (Event Delegation)
         // ========================================
-        const cards = document.querySelectorAll('.resource-card');
-        cards.forEach(card => {
-            card.addEventListener('click', () => {
+        cardsContainer.addEventListener('click', (event) => {
+            const card = event.target.closest('.resource-card');
+            if (card) {
                 const url = card.getAttribute('data-url');
                 if (url) {
-                    window.open(url, '_blank');
+                    // Security: Add noopener and noreferrer to prevent tabnabbing attacks
+                    window.open(url, '_blank', 'noopener,noreferrer');
                 }
-            });
+            }
         });
 
         // ========================================
