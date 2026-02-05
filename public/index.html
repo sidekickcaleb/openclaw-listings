@@ -250,6 +250,7 @@
 
         function applyDarkMode() {
             const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            let iconName;
             
             if (darkModeState === 'system') {
                 // Follow system preference
@@ -258,13 +259,24 @@
                 } else {
                     html.classList.remove('dark');
                 }
-                darkModeIcon.setAttribute('data-lucide', 'monitor');
+                iconName = 'monitor';
             } else if (darkModeState === 'dark') {
                 html.classList.add('dark');
-                darkModeIcon.setAttribute('data-lucide', 'moon');
+                iconName = 'moon';
             } else {
                 html.classList.remove('dark');
-                darkModeIcon.setAttribute('data-lucide', 'sun');
+                iconName = 'sun';
+            }
+            
+            // Replace the icon element entirely to force Lucide to re-render
+            const toggle = document.getElementById('darkModeToggle');
+            const oldIcon = toggle.querySelector('i, svg');
+            if (oldIcon) {
+                const newIcon = document.createElement('i');
+                newIcon.id = 'darkModeIcon';
+                newIcon.setAttribute('data-lucide', iconName);
+                newIcon.className = 'w-5 h-5';
+                oldIcon.replaceWith(newIcon);
             }
             
             lucide.createIcons();
